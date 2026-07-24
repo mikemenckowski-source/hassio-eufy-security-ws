@@ -1,0 +1,84 @@
+#include <tunables/global>
+
+profile eufy_security_ws_dev flags=(attach_disconnected,mediate_deleted) {
+  #include <abstractions/base>
+
+  # Capabilities
+  file,
+  signal (send) set=(kill,term,int,hup,cont),
+
+  # S6-Overlay
+  /init ix,
+  /bin/** ix,
+  /usr/bin/** ix,
+  /run/{s6,s6-rc*,service}/** ix,
+  /package/** ix,
+  /command/** ix,
+  /etc/services.d/** rwix,
+  /etc/cont-init.d/** rwix,
+  /etc/cont-finish.d/** rwix,
+  /run/{,**} rwk,
+  /dev/tty rw,
+
+  # Bashio
+  /usr/lib/bashio/** ix,
+
+  # Access to options.json and other files within your addon
+  /data/** rw,
+  /usr/src/app/node_modules/** r,
+  /usr/lib/node_modules/** r,
+  /usr/src/app/** rw,
+
+
+  owner /root/.npm/ rw,
+  owner /root/.npm/** rw,
+  owner /root/.npm/_logs rw,
+  owner /root/.npm/_logs/** rw,
+  owner /root/.npmrc r,
+  owner /root/.config/configstore/** rw,
+
+  # Allow the process to list and create folders in the base temp path
+  /root/.npm/_cacache/tmp/ rwl,
+
+  # Allow the process to do EVERYTHING inside the git-clone folders
+  # r=read, w=write, l=link, k=lock, m=memory-map, i=inherit, x=execute
+  /root/.npm/_cacache/tmp/git-clone*/** rwlkmix,
+
+  owner /usr/src/app/ r,
+  owner /usr/src/app/** rw,
+  owner /usr/src/app/**.sh ix,  # Allow lifecycle scripts
+
+    /etc/ssh/ssh_config r,
+  owner /root/.ssh/ r,
+  owner /root/.ssh/* r,
+  owner /root/.gitconfig/ rwlkmix,
+  owner /root/.gitconfig/** rwlkmix,
+
+/root/.gitconfig/ rwlkmix,
+ /root/.gitconfig/** rwlkmix,
+  /usr/lib/git-core/git rpx,
+  /usr/lib/git-core/git-remote-https ix,
+    /usr/lib/git-core/git-remote-http ix,
+    /usr/lib/git-core/git-remote-ssh ix,
+    /usr/lib/git-core/git-remote-https ix,
+    /usr/lib/git-core/git-remote-ssh ix,
+/usr/lib/git-core/* r,
+  network inet dgram,
+  network inet stream,
+  network inet6 dgram,
+  network inet6 stream,
+
+  # Start new profile for service
+  #/usr/bin/node cx -> node,
+  #/usr/bin/git cx -> node,
+
+  capability net_bind_service,
+
+  /bin/sh ix,
+  /usr/bin/sh ix,
+  /bin/dash ix,
+  /usr/bin/env ix,
+    /usr/bin/git ix,
+
+
+}
