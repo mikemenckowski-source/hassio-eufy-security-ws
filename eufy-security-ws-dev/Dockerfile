@@ -10,6 +10,7 @@ RUN \
         jq \
         nodejs \
         npm \
+        git \
     && node --version \
     && npm install --force \
     "eufy-security-ws@${EUFY_SECURITY_WS_VERSION}"
